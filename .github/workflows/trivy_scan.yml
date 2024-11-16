@@ -1,0 +1,53 @@
+- 👋 Hi, I’m @Sujit94-sudo
+- 👀 I’m interested in ...
+- 🌱 I’m currently learning ...
+- 💞️ I’m looking to collaborate on ...
+- 📫 How to reach me ...
+- 😄 Pronouns: ...
+- ⚡ Fun fact: ...
+
+<!---
+Sujit94-sudo/Sujit94-sudo is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+You can click the Preview link to take a look at your changes.
+--->name: Trivy Scan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -
+
+      - name: Run Trivy scan
+        run: |
+          ./trivy image vulnerables/cve-2014-0160 > trivy_scan_results.txt
+
+      - name: Install Pandoc
+        run: |
+          sudo apt-get update && sudo apt-get install -y pandoc
+
+      - name: Convert scan results to PDF
+        run: |
+          pandoc trivy_scan_results.txt -o trivy_scan_results.pdf --pdf-engine=xelatex -V mainfont="DejaVu Sans Mono"
+
+      - name: Upload Trivy scan results
+        uses: actions/upload-artifact@v2
+        with:
+          name: trivy-scan-results
+          path: trivy_scan_results.pdf
+
